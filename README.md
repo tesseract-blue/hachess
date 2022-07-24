@@ -72,10 +72,21 @@ Good parameters might then be:
 
 # Requirements
 
+Note that several other libraries are included, however these are solely for enhanced library functionality, and are not for use in the agents themselves (not that they would help much anyways).
+
+## Agent Libraries
+
+- [cython]()
 - [numpy](https://github.com/numpy/numpy)
 - [python-chess](https://github.com/niklasf/python-chess)
+
+## hachess Libraries
+
 - [click](https://click.palletsprojects.com/en/8.1.x/)
 - [rich](https://rich.readthedocs.io/en/stable/introduction.html)
+- [plotly]
+- [markdown] (for writing chess game simulations to markdown/html reports?)
+- ffmpeg-python? (for animating chess games)
 
 # Install
 
