@@ -30,11 +30,25 @@ Obviously, the stockfish SimpleEngine class in the python-chess library would co
 
 # Structure
 
+There are three main directories at the root level of the repository, though only two of these will be visible on GitHub, as the third (`dev`) is included in the gitignore.
+
+- games: contains a history of all games that have been run on the local machine
+- dev: .gitignore'd - contains code Hart/Adam use to develop their algorithms
+- hachess: contains all hachess module code
+
 In the `hachess` directory there is: `hachess.py`, which contains the code such that agents can compete against one and other.
 
 There are three other sub-directories in hachess. The first is `agents` - this directory contains all code relating to the agents.
 
 The second is `resources` - this directory contains all files that may be required in order for an agent to run.
+
+For example, suppose you create a Q-learning algorithm from scratch, which you then train yourself using the hachess library as an environment. You would want to include the Q-learning training code in the /dev directory, so it is opaque to the competitor. You would have to make the trained Q-table available to your agent, however, so you would put that in the /resources directory. Then, you would put your agent in the /agents directory.
+
+Each agent should occupy a single python file, and the file should be named according to the following convention:
+
+- [author name]\_[agent strategy].py
+
+eg: hart_qlearnmixed.py
 
 # Time
 
