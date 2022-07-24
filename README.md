@@ -5,6 +5,7 @@
 <p align="center">
   <a href="#about">About</a> &#xa0; | &#xa0;
   <a href="#rules">Rules</a> &#xa0; | &#xa0;
+  <a href="#structure">Structure</a> &#xa0; | &#xa0;
   <a href="#time">Time</a> &#xa0; | &#xa0;
   <a href="#requirements">Requirements</a> &#xa0; | &#xa0;
   <a href="#install">Install</a> &#xa0; | &#xa0;
@@ -26,6 +27,14 @@ Note that for the python-chess library, any module that takes any sort of _activ
 For instance, you can write a Q-learning algorithm from scratch and train it, and then use the Q-table as a resource. You cannot, however, download a pre-trained Q-table. Likewise, you can explicitly program in, or create resources that encode/identify good moves (eg: forks, pins, etc), but you cannot download a pre-existing resources of forks, pins, and so on, and then use that. Essentially, your brain has to be a nexus which all chess related information passes through before being encoded in the agent.
 
 Obviously, the stockfish SimpleEngine class in the python-chess library would completely off limits.
+
+# Structure
+
+In the `hachess` directory there is: `hachess.py`, which contains the code such that agents can compete against one and other.
+
+There are three other sub-directories in hachess. The first is `agents` - this directory contains all code relating to the agents.
+
+The second is `resources` - this directory contains all files that may be required in order for an agent to run.
 
 # Time
 
