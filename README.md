@@ -14,6 +14,10 @@
 
 </p>
 
+## Other notes
+
+- Each agent directory should contain a markdown file named `desc.md` which contains a minimum one sentence description of how the agent works.
+
 # About
 
 This repository is built to track on ongoing competition between [Hart](https://www.github.com/harttraveller) and [Adam](https://www.github.com/adamatbi) (hence the name: *H*art *A*dam _CHESS_).
@@ -24,9 +28,15 @@ The nature of the competition is as follows: we create agents constructed in pyt
 
 Note that for the python-chess library, any module that takes any sort of _active role_ in making a decision in relation to a move is completely off limits. The purpose of this competition is to allow us to test our abilities to create agents that can make decisions, while only relying on base python (or cython, to accelerate game simulation), numpy (to help with linear algebra stuff that might be useful), and python-chess (mostly so we don't have to recreate a representation for the rules of chess, and can entirely focus on creating the game-playing algorithms).
 
-For instance, you can write a Q-learning algorithm from scratch and train it, and then use the Q-table as a resource. You cannot, however, download a pre-trained Q-table. Likewise, you can explicitly program in, or create resources that encode/identify good moves (eg: forks, pins, etc), but you cannot download a pre-existing resources of forks, pins, and so on, and then use that. Essentially, your brain has to be a nexus which all chess related information passes through before being encoded in the agent.
+For instance, you can write a Q-learning algorithm from scratch and train it, and then use the Q-table as a resource. You cannot, however, download a pre-trained Q-table. Likewise, you can explicitly program in, or create resources that encode/identify good moves (eg: forks, pins, etc), but you cannot download a pre-existing resources of forks, pins, and so on, and then use that. I have created `hart.py` and `adam.py` respectively to hold any common code that your agent might need to access, however, which can be found in the `common` dir. Essentially, your brain has to be a nexus which all chess related information passes through before being encoded in the agent.
 
 Obviously, the stockfish SimpleEngine class in the python-chess library would completely off limits.
+
+## Chess module, methods/properties agent is allowed to access
+
+- chess.Board.legal_moves
+
+## Chess module, methods/properties is NOT allowed to access
 
 # Structure
 
@@ -72,7 +82,7 @@ Good parameters might then be:
 
 # Requirements
 
-Note that several other libraries are included, however these are solely for enhanced library functionality, and are not for use in the agents themselves (not that they would help much anyways).
+Note that several other libraries are included, however these are solely for enhanced library functionality, and are not for use in the agents themselves (not that they would help much anyways).'
 
 ## Agent Libraries
 
@@ -82,9 +92,9 @@ Note that several other libraries are included, however these are solely for enh
 
 ## hachess Libraries
 
-- [click](https://click.palletsprojects.com/en/8.1.x/)
 - [rich](https://rich.readthedocs.io/en/stable/introduction.html)
 - [plotly]
+- [click]
 - [markdown] (for writing chess game simulations to markdown/html reports?)
 - ffmpeg-python? (for animating chess games)
 
@@ -120,4 +130,28 @@ $ pip install -e .
 
 # Tutorial
 
-# Documentation
+## How to run a simulation
+
+Just call `hach` from the command line. It will prompt you to select the agents you are using, and then it will begin to have them compete.
+
+```bash
+$ hach
+$ Select Agent A >>>
+$ Select Agent B >>>
+```
+
+When the agents have finished competing, a report will be generated in the `games` dir as a sub-directory. The sub-dir name is simply the datetime that you started the simulation at and the names of the agents competing with one and other.
+
+## How to create a new agent
+
+Creating a new agent is extremely simple. Simply copy the template directory in hachess.agents, and rename the template directory to whatever you want.
+
+A template agent base class has already been provided for the agent. Here are a few quick notes:
+
+- You should leave the class name as simply `Agent`.
+- The `decide` method is required, and must return a type `chess.Move`
+- The class initialization must not accept any parameters (besides `self`).
+
+The Agent class is simple: it has one required method. This method is the `decide` method, which takes in a `chess.Board` type, and must return a `chess.Move` type. What the agent does to decide on a move is up to it. Note that if the agent takes longer than the pre-established `move_time` or `game_time`, the agent automatically loses. Furthermore, if the agent returns an illegal move, the agent also automatically loses. The loss reason is logged.
+
+## Viewing a simulation report

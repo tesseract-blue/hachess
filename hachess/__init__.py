@@ -1,4 +1,4 @@
-from .hachess import *
+from .simulate import *
 
 
 def main():
