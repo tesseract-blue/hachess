@@ -124,7 +124,7 @@ $ conda env create -f environment.yml
 
 OR
 
-````bash
+```bash
 $ conda create --name hachess python=3.9
 ```
 
@@ -136,7 +136,7 @@ Finally, while in the root directory you cloned, with the hachess environment ac
 
 ```bash
 $ pip install -e .
-````
+```
 
 # Tutorial
 
