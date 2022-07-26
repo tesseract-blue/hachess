@@ -127,3 +127,7 @@ def run(ctx, move_time: int, game_time: int, games: int) -> None:
 @click.pass_context
 def analyze(ctx):
     vprint("[bold green]Analysis[/bold green]", verbose=ctx.obj["VERBOSE"])
+
+
+if __name__ == "__main__":
+    cli()
