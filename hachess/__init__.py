@@ -1,5 +1,7 @@
-from .simulate import *
+from rich.console import Console
+
+from hachess.simulate import Simulation
 
 
 def main():
-    pass
+    print("hello wor")

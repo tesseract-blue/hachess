@@ -5,6 +5,12 @@ import random
 
 class Simulation:
     def __init__(self, verbose: bool = False) -> None:
+        """
+        A simulation class that allows you to run two chess agents against each other.
+
+        Args:
+            verbose (bool, optional): Defaults to False.
+        """
         self.__agents = dict()
         self.verbose = verbose
         self.score = [0, 0]
