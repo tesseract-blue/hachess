@@ -2,24 +2,32 @@ import importlib
 import chess
 import random
 
+
 class Simulation:
-    def __init__(self,verbose = False) -> None:
+    def __init__(self, verbose: bool = False) -> None:
         self.__agents = dict()
         self.verbose = verbose
-        self.score = [0,0]
+        self.score = [0, 0]
 
-    def import_agent(self, name, module):
+    def import_agent(self, name: str, module: str):
         self.__agents[name] = importlib.import_module(module)()
 
-    def compete_agents(self,agent_0,agent_1,number_rounds=10,move_time = 3,game_time = 180) -> tuple[float,float]:
-        self.score = [0,0]
+    def compete_agents(
+        self,
+        agent_0: str,
+        agent_1: str,
+        number_rounds: int = 10,
+        move_time: int = 3,
+        game_time: int = 180,
+    ) -> tuple[float, float]:
+        self.score = [0, 0]
         for _ in range(number_rounds):
-            self.run_game(agent_0,agent_1,move_time,game_time)
+            self.run_game(agent_0, agent_1, move_time, game_time)
         return self.score
 
-    def run_game(self,agent_0,agent_1,move_time,game_time):
-        if random.random()>0.5:
-            #randomly select white and black roles
+    def run_game(self, agent_0: str, agent_1: str, move_time: int, game_time: int):
+        if random.random() > 0.5:
+            # randomly select white and black roles
             white = self.__agents[agent_0]
             black = self.__agents[agent_1]
             white_agent_number = 0
@@ -32,43 +40,45 @@ class Simulation:
 
         while board.outcome() == None:
             if board.turn:
-                #white move
+                # white move
                 move = white.decide(board)
             else:
-                #black move
+                # black move
                 move = black.decide(board)
             try:
-                #attempt to 
+                # attempt to
                 board.push_san(move)
-            except(ValueError):
+            except (ValueError):
                 if self.verbose:
                     if board.turn:
-                        print("ERROR: invalid move by agent {}.".format(white_agent_number))
-                        self.log_game("0-1",white_agent_number)
+                        print(
+                            "ERROR: invalid move by agent {}.".format(
+                                white_agent_number
+                            )
+                        )
+                        self.log_game("0-1", white_agent_number)
                     else:
-                        print("ERROR: invalid move by agent {}.".format(1-white_agent_number))
-                        self.log_game("1-0",white_agent_number)
-        self.log_game(board.result(),white_agent_number)
-        
+                        print(
+                            "ERROR: invalid move by agent {}.".format(
+                                1 - white_agent_number
+                            )
+                        )
+                        self.log_game("1-0", white_agent_number)
 
-    def log_game(self,result,white_agent_number):
-        if result=="1-0":
-            #white winner
-            self.score[white_agent_number]+=1
-        if result=="0-1":
-            #black winner
-            self.score[1-white_agent_number]+=1
+        self.log_game(board.result(), white_agent_number)
+
+    def log_game(self, result, white_agent_number):
+        if result == "1-0":
+            # white winner
+            self.score[white_agent_number] += 1
+        if result == "0-1":
+            # black winner
+            self.score[1 - white_agent_number] += 1
         else:
-            #draw
-            self.score[0]+=0.5
-            self.score[1]+=0.5
-
-
-
+            # draw
+            self.score[0] += 0.5
+            self.score[1] += 0.5
 
 
 if __name__ == "__main__":
     sim = Simulation()
-    
-
-   
