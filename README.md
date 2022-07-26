@@ -122,11 +122,21 @@ Next, enter the repository directory and run the following command.
 $ conda env create -f environment.yml
 ```
 
+OR
+
+````bash
+$ conda create --name hachess python=3.9
+```
+
+```bash
+$ pip install -r requirements.txt
+```
+
 Finally, while in the root directory you cloned, with the hachess environment activated, run the following command.
 
 ```bash
 $ pip install -e .
-```
+````
 
 # Tutorial
 
