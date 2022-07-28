@@ -87,7 +87,8 @@ class Agent:
         score-=3*len(board.pieces(chess.KNIGHT,chess.BLACK))
         score-=5*len(board.pieces(chess.ROOK,chess.BLACK))
         score-=9*len(board.pieces(chess.QUEEN,chess.BLACK))
-        return score
+        
+        return score if self_white else -score
 
     def resolution_score(self, board_result: str,self_white:bool) -> float:
         if board_result == "0-0":
