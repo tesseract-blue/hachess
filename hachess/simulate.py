@@ -12,16 +12,30 @@ class Simulation:
         Args:
             verbose (bool, optional): Defaults to False.
         """
-        self.__init_logs()
-        self.__agents = dict()
         self.verbose = verbose
-        self.score = dict()
+        self.__init_logs()
+        self.__init_score()
+        self.__init_agents()
 
     def __init_logs(self) -> None:
+        "Initializes logs dictionary"
         self.__logs = dict()
 
+    def __init_score(self) -> None:
+        "Initializes score dictionary"
+        self.__score = dict()
+
+    def __init_agents(self) -> None:
+        "Initializes agents dictionary"
+        self.__agents = dict()
+
     def import_agent(self, name: str):
-        # imports and instantiates agent
+        """
+        Imports and instantiates an agent.
+
+        Args:
+            name (str): the name of the agent (the directory the agent is stored in)
+        """
         self.__agents[name] = getattr(
             import_module(f"hachess.agents.{name}.agent"), "Agent"
         )()
@@ -34,10 +48,8 @@ class Simulation:
         move_time: int,
         game_time: int,
     ) -> tuple[float, float]:
-        self.score = [0, 0]
         for _ in range(number_rounds):
-            self.run_game(agent_0, agent_1, move_time, game_time)
-        return self.score
+            results = self.run_game(agent_0, agent_1, move_time, game_time)
 
     def run_game(self, agent_0: str, agent_1: str, move_time: int, game_time: int):
         if random.random() > 0.5:
