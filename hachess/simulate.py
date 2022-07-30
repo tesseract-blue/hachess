@@ -1,7 +1,12 @@
-import chess
-import random
+import chess, random
+
+import numpy as np
 
 from importlib import import_module
+
+from hachess.agent import Agent
+
+from typing import Union
 
 
 class Simulation:
@@ -12,100 +17,124 @@ class Simulation:
         Args:
             verbose (bool, optional): Defaults to False.
         """
-        self.verbose = verbose
-        self.__init_logs()
+        self.__verbose = verbose
         self.__init_score()
         self.__init_agents()
 
-    def __init_logs(self) -> None:
-        "Initializes logs dictionary"
-        self.__logs = dict()
+    # INITIALIZATION
+
+    def __init_logs(self, a1_name, a2_name) -> None:
+        """
+
+        "outcomes": list(),
+                    "num_moves": list(),
+                    "avg_move_times":
+
+        SUMMARY
+
+        Args:
+            a1_name (_type_): _description_
+            a2_name (_type_): _description_
+        """
+        self.__logs = {
+            a1_name: {"score": 0, "summaries": list()},
+            a2_name: {"score": 0, "summaries": list()},
+            "games": list(),
+        }
 
     def __init_score(self) -> None:
         "Initializes score dictionary"
         self.__score = dict()
 
-    def __init_agents(self) -> None:
-        "Initializes agents dictionary"
-        self.__agents = dict()
-
-    def import_agent(self, name: str):
-        """
-        Imports and instantiates an agent.
-
-        Args:
-            name (str): the name of the agent (the directory the agent is stored in)
-        """
-        self.__agents[name] = getattr(
-            import_module(f"hachess.agents.{name}.agent"), "Agent"
-        )()
-
-    def compete_agents(
+    def __init_agents(
         self,
-        agent_0: str,
-        agent_1: str,
-        number_rounds: int,
+        a1: Agent = None,
+        a2: Agent = None,
+        a1_name: str = "a1",
+        a2_name: str = "a2",
+    ) -> None:
+        "Initializes agents dictionary"
+        self.__agents = {a1_name: a1, a2_name: a2}
+
+    def __gen_gamelog(self, white, black) -> dict:
+        return {
+            white: {"color": "white", "outcome": None},
+            black: {"color": "black", "outcome": None},
+            "moves": {},
+        }
+
+    # PROPERTIES
+    @property
+    def agents(self):
+        return self.__agents
+
+    # PRIVATE METHODS
+    def __choose_colors(self):
+        rand = np.random.binomial(n=1, p=0.5)
+        # white is index 0, black is index 1
+        return rand, 1 - rand
+
+    def __log_game(self, gamelog, white, black, outcome):
+        outcome = [float(i) for i in outcome.split("-")]
+        wo, bo = outcome[0], outcome[1]
+        gamelog[white["outcome"]] += wo
+        gamelog[black["outcome"]] += bo
+        self.__logs["score"][white["name"]] += wo
+        self.__logs["score"][black["name"]] += bo
+        self.__logs
+
+    def __run_game(
+        self,
+        white: dict[str, Union[str, Agent]],
+        black: dict[str, Union[str, Agent]],
         move_time: int,
         game_time: int,
-    ) -> tuple[float, float]:
-        for _ in range(number_rounds):
-            results = self.run_game(agent_0, agent_1, move_time, game_time)
-
-    def run_game(self, agent_0: str, agent_1: str, move_time: int, game_time: int):
-        if random.random() > 0.5:
-            # randomly select white and black roles
-            white = self.__agents[agent_0]
-            black = self.__agents[agent_1]
-            white_agent_number = 0
-        else:
-            white = self.__agents[agent_1]
-            black = self.__agents[agent_0]
-            white_agent_number = 1
+    ):
+        wa, ba = white["agent"], black["agent"]
+        gamelog = self.__gen_gamelog(white["name"], black["name"])
 
         board = chess.Board()
 
         while board.outcome() == None:
-            if board.turn:
-                # white move
-                move = white.decide(board)
-            else:
-                # black move
-                move = black.decide(board)
+            if board.turn:  # white turn to move
+                move = wa.decide(board)
+            else:  # black turn to move
+                move = ba.decide(board)
             try:
-                # attempt to
-                board.push(move)
+                board.push(move)  # push the selected move to the board object
             except (ValueError):
-                if self.verbose:
-                    if board.turn:
-                        print(
-                            "ERROR: invalid move by agent {}.".format(
-                                white_agent_number
-                            )
-                        )
-                        self.log_game("0-1", white_agent_number)
-                    else:
-                        print(
-                            "ERROR: invalid move by agent {}.".format(
-                                1 - white_agent_number
-                            )
-                        )
-                        self.log_game("1-0", white_agent_number)
+                if board.turn:
+                    raise Exception(f"Invalid move by agent{white['name']}")
+                else:
+                    raise Exception(f"Inavlid move by agent {black['name']}")
 
-        self.log_game(board.result(), white_agent_number)
+        self.__log_game(gamelog, white, black, board.result())
 
-    def log_game(self, result, white_agent_number):
-        if result == "1-0":
-            # white winner
-            self.score[white_agent_number] += 1
-        elif result == "0-1":
-            # black winner
-            self.score[1 - white_agent_number] += 1
-        else:
-            # draw
-            self.score[0] += 0.5
-            self.score[1] += 0.5
+    def __compete_agents(
+        self,
+        number_rounds: int,
+        move_time: int,
+        game_time: int,
+    ) -> tuple[float, float]:
+        self.__init_logs()
+        for _ in range(number_rounds):
+            colors = self.choose_colors()
+            results = self.__run_game(
+                self.agents[colors[0]], self.agents[colors[1]], move_time, game_time
+            )
 
-    def run(self, A: str, B: str, games: int, move_time: int, game_time: int) -> None:
+    # PUBLIC METHODS
+
+    def run(
+        self,
+        a1: Agent,
+        a2: Agent,
+        games: int,
+        move_time: int,
+        game_time: int,
+        a1_name: str = "a1",
+        a2_name: str = "a2",
+    ) -> None:
         """
         Runs the simulation, given the agent dir names.
 
@@ -113,10 +142,8 @@ class Simulation:
             A (str): _description_
             B (str): _description_
         """
-        # import agents
-        self.import_agent(A)
-        self.import_agent(B)
-        score = self.compete_agents(A, B, games, move_time, game_time)
+        self.__init_agents(a1=a1, a2=a2, a1_name=a1_name, a2_name=a2_name)
+        score = self.compete_agents(a1, a2, games, move_time, game_time)
         self.__logs["score"] = score
         return self.__logs
 

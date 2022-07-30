@@ -8,7 +8,7 @@ import click
 from typing import Any
 
 # package library
-from hachess.common import vprint, select_agent
+from hachess.common import vprint, select_agent, import_path_agent
 from hachess.simulate import Simulation
 
 
@@ -34,14 +34,14 @@ def cli(ctx, debug, verbose):
 
 @cli.command()
 @click.option(
-    "--A1",
+    "--a1",
     default="default",
     type=str,
     help="The path to the directory containing the first agent you want to use",
     required=False,
 )
 @click.option(
-    "--A2",
+    "--a2",
     default="default",
     type=str,
     help="The path to the directory containing the second agent you want to use",
@@ -76,31 +76,41 @@ def cli(ctx, debug, verbose):
     required=False,
 )
 @click.pass_context
-def run(ctx, A1: str, A2: str, move_time: int, game_time: int, games: int) -> None:
+def run(
+    ctx, a1: str, a2: str, logs: str, move_time: int, game_time: int, games: int
+) -> None:
     """
     CLI command to run two agents against each other.
 
     Args:
         ctx (_type_): _description_
+        a1 (str):
+        a2 (str):
+        logs (str):
         move_time (int): _description_
         game_time (int): _description_
     """
     vprint("[bold green]RUNNING HACHESS[/bold green]", verbose=ctx.obj["VERBOSE"])
 
-    if (A1 == "default") and (A2 == "default"):
+    if (a1 == "default") and (a2 == "default"):
         # prompt user for the first agent
-        A1 = select_agent(ctx, "A", verbose=ctx.obj["VERBOSE"])
+        a1 = select_agent(ctx, "a1", verbose=ctx.obj["VERBOSE"])
 
         # prompt user for the second agent
-        A2 = select_agent(ctx, "B", verbose=ctx.obj["VERBOSE"])
+        a2 = select_agent(ctx, "a2", verbose=ctx.obj["VERBOSE"])
 
         # actually run the simulation, gather logs
         sim = Simulation(verbose=ctx.obj["VERBOSE"])
-        logs = sim.run(A1, A2, games, move_time, game_time)
+        logs = sim.run(a1, a2, games, move_time, game_time)
         print(logs)
 
-    elif (A1 != "default") and (A2 != "default"):
-        pass
+    elif (a1 != "default") and (a2 != "default"):
+        a1_name, a1 = import_path_agent(ctx, a1, verbose=ctx.obj["VERBOSE"])
+        a2_name, a2 = import_path_agent(ctx, a2, verbose=ctx.obj["VERBOSE"])
+        sim = Simulation(verbose=ctx.obj["VERBOSE"])
+        logs = sim.run(
+            a1, a2, games, move_time, game_time, a1_name=a1_name, a2_name=a2_name
+        )
 
     else:
         raise Exception("You cannot pass only a single agent path.")
