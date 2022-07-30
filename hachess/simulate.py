@@ -15,7 +15,7 @@ class Simulation:
         self.__init_logs()
         self.__agents = dict()
         self.verbose = verbose
-        self.score = [0, 0]
+        self.score = dict()
 
     def __init_logs(self) -> None:
         self.__logs = dict()
