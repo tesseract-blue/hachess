@@ -35,12 +35,12 @@ def identify_agent_class(path: str) -> str:
         str: the name of the agent class
     """
     if os.path.exists(path):
-        files = [f.split(".")[0] for f in os.listdir(path)]
-        pyfile = [i for i in files if i[1] == "py"]
+        files = [f.split(".") for f in os.listdir(path) if len(f.split(".")) == 2]
+        pyfile = [i for i in files if (i[1] == "py") and (i[0] != "__init__")]
         if len(pyfile) == 1:
-            pyfile = "".join(pyfile[0])
+            pyfile = ".".join(pyfile[0])
             with open(f"{path}/{pyfile}") as pf:
-                classname = pf.read().split("class ")[1].split("(")[0]
+                classname = pf.read().split("class ")[1].split(":")[0]
                 return classname
         elif len(pyfile) == 2:
             raise Exception(
