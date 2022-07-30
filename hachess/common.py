@@ -24,6 +24,10 @@ def vprint(
             Console().print(p)
 
 
+def hachess_local_directory() -> str:
+    return os.path.split(os.path.abspath(__file__))[0]
+
+
 def identify_agent_class(path: str) -> str:
     """
     Identifies names of the agent class in path to agent directory
