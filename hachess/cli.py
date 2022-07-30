@@ -8,52 +8,8 @@ import click
 from typing import Any
 
 # package library
-from hachess.common import vprint
+from hachess.common import vprint, select_agent
 from hachess.simulate import Simulation
-
-
-def path_to_agents() -> str:
-    "Returns the path to the agents dir"
-    return os.path.join(os.path.split(os.path.abspath(__file__))[0], "agents")
-
-
-def sinput(options: list[str]) -> Any:
-    """
-    TODO: fill in later
-
-    Args:
-        prompt (str, optional): _description_. Defaults to "".
-
-    Kwargs:
-        type (type, optional):
-        options (list, optional):
-
-    Returns:
-        Any: _description_
-    """
-    user_input = input(f">>> ")
-    while user_input not in options:
-        vprint("[bold red]INVALID PARAMETER[/bold red]", verbose=True)
-        user_input = str(input(f">>> "))
-    return user_input
-
-
-def select_agent(ctx, agent_id: str, verbose: bool) -> str:
-    available_agents = os.listdir(path_to_agents())
-
-    # prompt the user to select agent (based on list item number)
-    vprint(
-        f"[blue]Please select agent {agent_id} from the list:[/blue]",
-        verbose=ctx.obj["VERBOSE"],
-    )
-
-    # display agents
-    for i, v in enumerate(available_agents):
-        print(f"{i}: {v}")
-
-    # return user selected agent
-    agent_index = sinput(options=[str(i) for i in range(len(available_agents))])
-    return available_agents[int(agent_index)]
 
 
 @click.group()
