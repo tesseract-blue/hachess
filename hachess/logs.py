@@ -163,6 +163,7 @@ class MultipleGames:
         # mean: mean move time per game
         # mean: standard dev of move time per game
         # moves per game
+        return game_stats
 
     def log_game(self, game: dict) -> None:
         self.games.append(game.logs)
@@ -170,5 +171,5 @@ class MultipleGames:
     @property
     def logs(self):
         df = pd.DataFrame(self.games).drop(["a1_times", "a2_times", "moves"], axis=1)
-        self.compute_game_statistics(df)
-        return self.cdist, self.sdist
+        game_stats = self.compute_game_statistics(df)
+        return game_stats
