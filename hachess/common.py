@@ -9,7 +9,7 @@ from rich.console import Console
 
 def vprint(
     s: Any,
-    verbose: bool,
+    verbose: bool = True,
     pretty: bool = False,
     sort_dicts: bool = False,
     limit: int = None,
