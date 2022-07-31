@@ -69,15 +69,15 @@ def cli(ctx, debug, verbose):
     required=False,
 )
 @click.option(
-    "--games",
+    "--num_rounds",
     default=100,
     type=int,
-    help="The number of games the agents should play to move over the game. Default: 100",
+    help="The number of rounds the agents should play. Default: 100",
     required=False,
 )
 @click.pass_context
 def run(
-    ctx, a1: str, a2: str, logs: str, move_time: int, game_time: int, games: int
+    ctx, a1: str, a2: str, logs: str, move_time: int, game_time: int, num_rounds: int
 ) -> None:
     """
     CLI command to run two agents against each other.
@@ -93,27 +93,18 @@ def run(
     vprint("[bold green]RUNNING HACHESS[/bold green]", verbose=ctx.obj["VERBOSE"])
 
     if (a1 == "default") and (a2 == "default"):
-        # prompt user for the first agent
+        # prompt user for agent selection
         a1 = select_agent(ctx, "a1", verbose=ctx.obj["VERBOSE"])
-
-        # prompt user for the second agent
         a2 = select_agent(ctx, "a2", verbose=ctx.obj["VERBOSE"])
-
-        # actually run the simulation, gather logs
-        sim = Simulation(verbose=ctx.obj["VERBOSE"])
-        logs = sim.run(a1, a2, games, move_time, game_time)
-        print(logs)
-
     elif (a1 != "default") and (a2 != "default"):
-        a1_name, a1 = import_path_agent(ctx, a1, verbose=ctx.obj["VERBOSE"])
-        a2_name, a2 = import_path_agent(ctx, a2, verbose=ctx.obj["VERBOSE"])
-        sim = Simulation(verbose=ctx.obj["VERBOSE"])
-        logs = sim.run(
-            a1, a2, games, move_time, game_time, a1_name=a1_name, a2_name=a2_name
-        )
-
+        a1 = import_path_agent(ctx, a1, verbose=ctx.obj["VERBOSE"])
+        a2 = import_path_agent(ctx, a2, verbose=ctx.obj["VERBOSE"])
     else:
         raise Exception("You cannot pass only a single agent path.")
+
+    sim = Simulation(verbose=ctx.obj["VERBOSE"])
+    logs = sim.run(a1, a2, num_rounds, move_time, game_time)
+    vprint(logs, verbose=True)
 
     ## check to see if there is a logs directory in the module directory, if there isn't, create one
 

@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, imp
 
 from typing import Any
 from pprint import pprint
@@ -29,24 +29,6 @@ def hachess_local_directory() -> str:
     return os.path.split(os.path.abspath(__file__))[0]
 
 
-def identify_agent_file(path: str) -> str:
-    if os.path.exists(path):
-        files = [f.split(".") for f in os.listdir(path) if len(f.split(".")) == 2]
-        pyfile = [i for i in files if (i[1] == "py") and (i[0] != "__init__")]
-        if len(pyfile) == 1:
-            pyfile = ".".join(pyfile[0])
-            return pyfile, f"{path}/{pyfile}"
-        elif len(pyfile) == 2:
-            raise Exception(
-                "There is more than one python file in the agent directory."
-            )
-        else:
-            raise Exception("There are no python files in the agent directory.")
-
-    else:
-        raise Exception("The path does not exist.")
-
-
 def identify_agent_class(path: str) -> str:
     """
     Identifies names of the agent class in path to agent file.
@@ -63,6 +45,36 @@ def identify_agent_class(path: str) -> str:
             return classname
     else:
         raise Exception(f"The specified agent file {path} does not exist.")
+
+
+def identify_agent_file(path: str) -> str:
+    if os.path.exists(path):
+        files = [f.split(".") for f in os.listdir(path) if len(f.split(".")) == 2]
+        pyfile = [i for i in files if (i[1] == "py") and (i[0] != "__init__")]
+        if len(pyfile) == 1:
+            modname = pyfile[0][0]
+            pyfile = ".".join(pyfile[0])
+            return modname, pyfile, f"{path}/{pyfile}"
+        elif len(pyfile) == 2:
+            raise Exception(
+                "There is more than one python file in the agent directory."
+            )
+        else:
+            raise Exception("There are no python files in the agent directory.")
+
+    else:
+        raise Exception("The path does not exist.")
+
+
+# def identify_agent_objects(path: str) -> str:
+#     if os.path.exists(path):
+#         agent_file = os.path.split(path)[-1]
+#         module_name, extension = agent_file.split(".")
+#         assert extension == "py", "The agent file is not python"
+#         agent_class = identify_agent_class(path)
+#         return path, agent_file, module_name, agent_class
+#     else:
+#         raise Exception("The path does not exist.")
 
 
 def path_to_agents() -> str:
@@ -91,29 +103,19 @@ def sinput(options: list[str]) -> Any:
     return user_input
 
 
-def import_agent(name: str):
-    """
-    Imports and returns an agent class
-
-    Args:
-        name (str): the agent module name
-    """
-    return getattr(import_module(f"hachess.agents.{name}.agent"), "Agent")
-
-
 def import_path_agent(path: str):
-    agent_name, agent_path = identify_agent_file(path)
+    module_name, agent_file, agent_path = identify_agent_file(path)
     agent_class = identify_agent_class(agent_path)
-    spec = util.spec_from_file_location(agent_class, agent_path)
-    agent = util.module_from_spec(spec)
-    sys.modules[agent_class] = agent
-    spec.loader.exec_module(agent)
-    return agent_name, agent
+    spec = util.spec_from_file_location(module_name, agent_path)
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    agent = {"name": module_name, "agent": eval(f"module.{agent_class}()")}
+    return agent
 
 
 def select_agent(ctx, agent_id: str, verbose: bool) -> str:
-    available_agents = os.listdir(path_to_agents())
-
+    pta = path_to_agents()
+    available_agents = os.listdir(pta)
     # prompt the user to select agent (based on list item number)
     vprint(
         f"[blue]Please select agent {agent_id} from the list:[/blue]",
@@ -126,4 +128,5 @@ def select_agent(ctx, agent_id: str, verbose: bool) -> str:
 
     # return user selected agent
     agent_index = sinput(options=[str(i) for i in range(len(available_agents))])
-    return import_agent(available_agents[int(agent_index)])
+    selected_agent = available_agents[int(agent_index)]
+    return import_path_agent(f"{pta}/{selected_agent}")

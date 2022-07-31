@@ -1,3 +1,12 @@
+"""
+hachess simulation expects the following methods:
+- decide
+
+
+The agent randomly selects a move from the list of legal moves.
+
+"""
+
 import os
 import random
 import chess
