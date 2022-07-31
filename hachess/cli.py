@@ -8,52 +8,8 @@ import click
 from typing import Any
 
 # package library
-from hachess.common import vprint
+from hachess.common import vprint, select_agent, import_path_agent
 from hachess.simulate import Simulation
-
-
-def path_to_agents() -> str:
-    "Returns the path to the agents dir"
-    return os.path.join(os.path.split(os.path.abspath(__file__))[0], "agents")
-
-
-def sinput(options: list[str]) -> Any:
-    """
-    TODO: fill in later
-
-    Args:
-        prompt (str, optional): _description_. Defaults to "".
-
-    Kwargs:
-        type (type, optional):
-        options (list, optional):
-
-    Returns:
-        Any: _description_
-    """
-    user_input = input(f">>> ")
-    while user_input not in options:
-        vprint("[bold red]INVALID PARAMETER[/bold red]", verbose=True)
-        user_input = str(input(f">>> "))
-    return user_input
-
-
-def select_agent(ctx, agent_id: str, verbose: bool) -> str:
-    available_agents = os.listdir(path_to_agents())
-
-    # prompt the user to select agent (based on list item number)
-    vprint(
-        f"[blue]Please select agent {agent_id} from the list:[/blue]",
-        verbose=ctx.obj["VERBOSE"],
-    )
-
-    # display agents
-    for i, v in enumerate(available_agents):
-        print(f"{i}: {v}")
-
-    # return user selected agent
-    agent_index = sinput(options=[str(i) for i in range(len(available_agents))])
-    return available_agents[int(agent_index)]
 
 
 @click.group()
@@ -78,45 +34,77 @@ def cli(ctx, debug, verbose):
 
 @cli.command()
 @click.option(
+    "--a1",
+    default="default",
+    type=str,
+    help="The path to the directory containing the first agent you want to use",
+    required=False,
+)
+@click.option(
+    "--a2",
+    default="default",
+    type=str,
+    help="The path to the directory containing the second agent you want to use",
+    required=False,
+)
+@click.option(
+    "--logs",
+    default="default",
+    type=str,
+    help="The path to the directory you want the games logs to save to",
+    required=False,
+)
+@click.option(
     "--move_time",
     default=-1,
     type=int,
     help="The amount of time (seconds) each agent has to move per turn. Default: -1 (infinite time)",
+    required=False,
 )
 @click.option(
     "--game_time",
     default=-1,
     type=int,
     help="The amount of time (seconds) each agent has to move over the game. Default: -1 (infinite time)",
+    required=False,
 )
 @click.option(
-    "--games",
+    "--num_rounds",
     default=100,
     type=int,
-    help="The number of games the agents should play to move over the game. Default: 100",
+    help="The number of rounds the agents should play. Default: 100",
+    required=False,
 )
 @click.pass_context
-def run(ctx, move_time: int, game_time: int, games: int) -> None:
+def run(
+    ctx, a1: str, a2: str, logs: str, move_time: int, game_time: int, num_rounds: int
+) -> None:
     """
     CLI command to run two agents against each other.
 
     Args:
         ctx (_type_): _description_
+        a1 (str):
+        a2 (str):
+        logs (str):
         move_time (int): _description_
         game_time (int): _description_
     """
-    vprint("[bold green]SIMULATION STARTING[/bold green]", verbose=ctx.obj["VERBOSE"])
+    vprint("[bold green]RUNNING HACHESS[/bold green]", verbose=ctx.obj["VERBOSE"])
 
-    # prompt user for the first agent
-    A = select_agent(ctx, "A", verbose=ctx.obj["VERBOSE"])
+    if (a1 == "default") and (a2 == "default"):
+        # prompt user for agent selection
+        a1 = select_agent(ctx, "a1", verbose=ctx.obj["VERBOSE"])
+        a2 = select_agent(ctx, "a2", verbose=ctx.obj["VERBOSE"])
+    elif (a1 != "default") and (a2 != "default"):
+        a1 = import_path_agent(ctx, a1, verbose=ctx.obj["VERBOSE"])
+        a2 = import_path_agent(ctx, a2, verbose=ctx.obj["VERBOSE"])
+    else:
+        raise Exception("You cannot pass only a single agent path.")
 
-    # prompt user for the second agent
-    B = select_agent(ctx, "B", verbose=ctx.obj["VERBOSE"])
-
-    # actually run the simulation, gather logs
     sim = Simulation(verbose=ctx.obj["VERBOSE"])
-    logs = sim.run(A, B, games, move_time, game_time)
-    print(logs)
+    logs = sim.run(a1, a2, num_rounds, move_time, game_time)
+    vprint(logs, verbose=True)
 
     ## check to see if there is a logs directory in the module directory, if there isn't, create one
 
